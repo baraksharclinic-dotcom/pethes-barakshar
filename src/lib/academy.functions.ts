@@ -71,9 +71,9 @@ export const saveAdmin=createServerFn({method:'POST'}).middleware([requireSupaba
  const {data:admin}=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});if(!admin)throw new Error('Administrator access required');const db=context.supabase;
  let error;
  switch(data.type){
- case 'course':{const {type,...p}=data;({error}=await db.from('courses').upsert(p));break;}
- case 'lesson':{const {type,...p}=data;({error}=await db.from('lessons').upsert({...p,video_url:p.video_url||null,audio_url:p.audio_url||null}));break;}
- case 'session':{const {type,...p}=data;if(p.seats_booked>p.seats_total)throw new Error('Booked seats exceed capacity');({error}=await db.from('course_sessions').upsert(p));break;}
+ case 'course':{const {type,id,...p}=data;({error}=await db.from('courses').upsert({...p,...(id?{id}:{})}));break;}
+ case 'lesson':{const {type,id,...p}=data;({error}=await db.from('lessons').upsert({...p,...(id?{id}:{}),video_url:p.video_url||null,audio_url:p.audio_url||null}));break;}
+ case 'session':{const {type,id,...p}=data;if(p.seats_booked>p.seats_total)throw new Error('Booked seats exceed capacity');({error}=await db.from('course_sessions').upsert({...p,...(id?{id}:{})}));break;}
  case 'announcement':{const {type,...p}=data;({error}=await db.from('announcements').insert(p));break;}
  case 'blog':{const {type,...p}=data;({error}=await db.from('blog_posts').insert(p));break;}
  case 'faq':{const {type,...p}=data;({error}=await db.from('faqs').insert(p));break;}
