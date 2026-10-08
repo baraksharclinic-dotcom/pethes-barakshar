@@ -1,0 +1,20 @@
+import { Link } from '@tanstack/react-router';
+import { ArrowUpRight, BookOpen, Clock, Layers, Leaf, CalendarDays } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useLang,pick } from '@/lib/i18n';
+import { money,dateIST } from '@/lib/academy';
+import type { Tables } from '@/integrations/supabase/types';
+export function CourseCard({course:c}:{course:Tables<'courses'>}){
+ const {lang}=useLang();
+ return <article className="overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-soft"><div className="course-art"><div className="absolute left-5 top-4 text-xs font-semibold uppercase">{c.level}</div><Leaf size={76} strokeWidth={1}/><span className="absolute bottom-4 right-5 font-display text-3xl text-primary/40">12</span></div><div className="p-6"><div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase text-muted-foreground"><span>{c.mode}</span><span>·</span><span>English + Marathi</span></div><h3 className="min-h-16 text-2xl font-semibold">{pick(lang,c.title,c.title_mr)}</h3><p className="mt-3 min-h-20 text-muted-foreground">{pick(lang,c.summary,c.summary_mr)}</p><div className="mt-4 flex gap-4 text-sm text-muted-foreground"><span className="flex items-center gap-1"><Clock size={15}/>{c.duration_weeks} weeks</span><span className="flex items-center gap-1"><Layers size={15}/>{c.access_days} days access</span></div><div className="mt-5 flex items-center justify-between border-t pt-5"><span className="text-xl font-semibold">{money(c.fee_inr)}</span><Button asChild variant="outline"><Link to="/courses/$slug" params={{slug:c.slug}}>{lang==='mr'?'तपशील पहा':'View course'}<ArrowUpRight/></Link></Button></div></div></article>;
+}
+export function Loading(){return <p className="container-page py-20 text-muted-foreground">Loading your academy…</p>}
+export function RouteError(){return <div className="container-page py-20"><h1 className="text-3xl">We couldn’t load this page</h1><p className="mt-4">Please try again shortly.</p><Button className="mt-4" onClick={()=>window.location.reload()}>Try again</Button></div>}
+export function RouteMissing(){return <div className="container-page py-20"><h1 className="text-3xl">Content not found</h1><Button asChild className="mt-4"><Link to="/">Go home</Link></Button></div>}
+export function SessionList({s}:{s:Tables<'course_sessions'> & {courses?:{title:string;slug:string}|null}}){
+ const d=new Date(s.starts_at);const left=Math.max(0,s.seats_total-s.seats_booked);
+ return <article className="flex flex-wrap items-center gap-5 border-b py-5"><div className="flex w-16 shrink-0 flex-col items-center rounded-md bg-secondary py-2"><span className="text-xs font-bold uppercase">{d.toLocaleDateString('en-IN',{month:'short',timeZone:'Asia/Kolkata'})}</span><span className="font-display text-3xl">{d.toLocaleDateString('en-IN',{day:'numeric',timeZone:'Asia/Kolkata'})}</span></div><div className="min-w-0 flex-1"><p className="text-xs font-semibold uppercase text-primary">{s.session_type} · {s.courses?.title}</p><h3 className="mt-1 text-xl font-semibold">{s.title}</h3><p className="mt-2 text-sm text-muted-foreground">{dateIST(s.starts_at)} IST · {s.duration_minutes} min · {s.location}</p></div><span className="text-sm font-semibold text-primary">{left} seats left</span><Button variant="outline" size="icon" title="Add to calendar" aria-label={`Add ${s.title} to calendar`} onClick={()=>{
+ const stamp=(d:Date)=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+ const text=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Pethe Academy//EN','BEGIN:VEVENT',`UID:${s.id}@pethe-academy`,`DTSTAMP:${stamp(new Date())}`,`DTSTART:${stamp(new Date(s.starts_at))}`,`DTEND:${stamp(new Date(new Date(s.starts_at).getTime()+s.duration_minutes*60000))}`,`SUMMARY:${s.title.replace(/[\n,;]/g,' ')}`,`LOCATION:${s.location.replace(/[\n,;]/g,' ')}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');const u=URL.createObjectURL(new Blob([text],{type:'text/calendar'}));const a=document.createElement('a');a.href=u;a.download='pethe-class.ics';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+ }}><CalendarDays size={18}/></Button></article>;
+}
