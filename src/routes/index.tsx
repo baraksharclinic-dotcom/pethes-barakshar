@@ -1,24 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
-export const Route = createFileRoute("/")({
-  component: Index,
-});
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
+import { createFileRoute,Link } from '@tanstack/react-router';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { ArrowRight, BookOpen, PlayCircle, Languages, CalendarDays, GraduationCap, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { catalogOptions,pageHead } from '@/lib/academy';
+import { useLang,pick } from '@/lib/i18n';
+import { CourseCard,SessionList,RouteError,RouteMissing } from '@/components/academy/shared';
+import hero from '@/assets/hero.jpg';
+export const Route=createFileRoute('/')({head:()=>pageHead("Pethe's Barakshar Bio-Chemic Academy","Explore bilingual courses on Biochemic medicine, tissue salts, live classes and recorded learning."),loader:({context})=>context.queryClient.ensureQueryData(catalogOptions),component:Home,errorComponent:RouteError,notFoundComponent:RouteMissing});
+function Home(){const {data}=useSuspenseQuery(catalogOptions);const {lang,t}=useLang();return <>
+ <section className="hero-home"><img src={hero} alt="Biochemic tissue salt bottles and a medical reference book" width={1600} height={1104}/><div className="container-page py-16"><div className="mb-6 flex items-center gap-3 text-sm font-semibold text-accent"><span className="h-px w-10 bg-accent"/>{lang==='mr'?'परंपरेतून ज्ञानाकडे':'A tradition of knowledge. A new way to learn.'}</div><h1 className="font-semibold">Pethe’s Barakshar<br/><span className="text-accent">Bio-Chemic</span></h1><p className="mt-6 max-w-xl text-2xl font-display">{lang==='mr'?'बाराक्षाराचे ज्ञान. आयुष्यभरासाठी.':'Twelve tissue salts. A lifetime of understanding.'}</p><p className="mt-4 max-w-lg text-lg text-ink-foreground/85">{lang==='mr'?'इंग्रजी आणि मराठीत सुसंगत अभ्यासक्रम, लाइव्ह वर्ग आणि रेकॉर्डेड धड्यांसह बायोकेमिक औषधशास्त्राचा अभ्यास करा.':'Discover Biochemic medicine through thoughtfully structured courses, live teaching, and recorded lessons in English and Marathi.'}</p><div className="mt-8 flex flex-wrap gap-3"><Button asChild variant="secondary" size="lg"><Link to="/courses">{t('browseCourses')}<ArrowRight/></Link></Button><Button asChild variant="secondary" size="lg"><Link to="/calendar"><CalendarDays/>{t('viewCalendar')}</Link></Button></div><div className="mt-9 flex flex-wrap gap-6 text-sm text-ink-foreground/85"><span className="flex items-center gap-2"><CheckCircle2 size={16}/>Learn at your pace</span><span className="flex items-center gap-2"><Languages size={16}/>English & मराठी</span></div></div></section>
+ <section className="border-b bg-card"><div className="container-page grid grid-cols-2 gap-6 py-7 md:grid-cols-4">{[[BookOpen,'Structured learning','From foundations to clinical practice'],[PlayCircle,'Your learning library','Recordings, audio & course notes'],[Languages,'Learn in your language','English and Marathi'],[GraduationCap,'Guided by experience','Thoughtful, practical teaching']].map(([Icon,title,sub])=>{const I=Icon as typeof BookOpen;return <div key={String(title)} className="flex items-start gap-3"><I className="mt-1 size-6 shrink-0 text-primary"/><div><p className="font-semibold">{String(title)}</p><p className="text-sm text-muted-foreground">{String(sub)}</p></div></div>})}</div></section>
+ <section className="container-page py-16"><div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm font-bold uppercase text-primary">The academy</p><h2 className="section-title mt-2">{lang==='mr'?'तुमचा शिकण्याचा प्रवास सुरू करा':'Find your next chapter'}</h2><p className="mt-3 text-muted-foreground">A clear path from curiosity to confident understanding.</p></div><Button asChild variant="link"><Link to="/courses">All courses <ArrowRight/></Link></Button></div><div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{data.courses.slice(0,3).map(c=><CourseCard key={c.id} course={c}/>)}</div></section>
+ <section className="border-y bg-secondary/50"><div className="container-page grid gap-12 py-14 lg:grid-cols-[1fr_1.8fr]"><div><p className="text-sm font-bold uppercase text-primary">Stay connected</p><h2 className="section-title mt-3">{t('upcoming')}</h2><p className="mt-4 text-muted-foreground">Make room for learning. Explore live classes, discussions, and workshops.</p><Button asChild variant="outline" className="mt-6"><Link to="/calendar">{t('viewCalendar')}<ArrowRight/></Link></Button></div><div>{data.sessions.slice(0,3).map(s=><SessionList key={s.id} s={s}/>)}</div></div></section>
+ <section className="container-page py-16"><div className="mb-8 flex items-end justify-between"><div><p className="text-sm font-bold uppercase text-primary">Beyond the classroom</p><h2 className="section-title mt-2">Ideas worth exploring</h2></div><Button asChild variant="link"><Link to="/blog">Visit the journal<ArrowRight/></Link></Button></div><div className="grid gap-8 md:grid-cols-3">{data.posts.slice(0,3).map((p,i)=><Link to="/blog/$slug" params={{slug:p.slug}} key={p.id} className="group border-t pt-5"><p className="text-xs font-bold uppercase text-primary">{p.category} · {p.read_minutes} min read</p><h3 className="mt-3 text-2xl font-semibold group-hover:text-primary">{p.title}</h3><p className="mt-3 text-muted-foreground">{p.excerpt}</p><ArrowRight className="mt-5 size-5 text-primary"/></Link>)}</div></section>
+ </>}

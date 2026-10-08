@@ -1,0 +1,10 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { catalogOptions,pageHead } from '@/lib/academy';
+import { CourseCard,RouteError,RouteMissing } from '@/components/academy/shared';
+import { PageHeader } from '@/components/site/PageHeader';
+import { useLang } from '@/lib/i18n';
+import { Input } from '@/components/ui/input';
+export const Route=createFileRoute('/courses/')({head:()=>pageHead('Course catalog','Explore Foundation, Advanced and specialist Biochemic courses with fees and access periods.'),loader:({context})=>context.queryClient.ensureQueryData(catalogOptions),component:Courses,errorComponent:RouteError,notFoundComponent:RouteMissing});
+function Courses(){const {data}=useSuspenseQuery(catalogOptions);const {lang}=useLang();const [search,setSearch]=useState('');const [level,setLevel]=useState('All levels');const list=data.courses.filter(c=>`${c.title} ${c.title_mr} ${c.summary}`.toLowerCase().includes(search.toLowerCase())&&(level==='All levels'||c.level===level));return <><PageHeader eyebrow="THE ACADEMY" title={lang==='mr'?'अभ्यासक्रम':'A course for every chapter'}>{lang==='mr'?'मूलभूत ते प्रगत अभ्यासक्रम — तुमच्यासाठी योग्य पर्याय निवडा.':'Build your understanding, one lesson at a time.'}</PageHeader><div className="container-page py-10"><div className="mb-8 flex flex-wrap items-center gap-4"><Input aria-label="Search courses" placeholder="Search courses…" value={search} onChange={e=>setSearch(e.target.value)} className="max-w-md"/><label className="field"><select aria-label="Course level" value={level} onChange={e=>setLevel(e.target.value)}>{['All levels','Beginner','Intermediate','Advanced'].map(x=><option key={x}>{x}</option>)}</select></label><span className="ml-auto text-sm text-muted-foreground">{list.length} courses</span></div><div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{list.map(c=><CourseCard key={c.id} course={c}/>)}</div>{!list.length&&<p>No matching courses.</p>}</div></>}
