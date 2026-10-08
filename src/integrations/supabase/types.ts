@@ -211,33 +211,48 @@ export type Database = {
       enrollments: {
         Row: {
           access_until: string | null
+          address: string | null
+          age: number | null
           course_id: string
           created_at: string
+          gender: string | null
           id: string
+          mobile: string | null
           note: string | null
           payment_ref: string | null
+          registration_name: string | null
           status: Database["public"]["Enums"]["enrollment_status"]
           updated_at: string
           user_id: string
         }
         Insert: {
           access_until?: string | null
+          address?: string | null
+          age?: number | null
           course_id: string
           created_at?: string
+          gender?: string | null
           id?: string
+          mobile?: string | null
           note?: string | null
           payment_ref?: string | null
+          registration_name?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           updated_at?: string
           user_id: string
         }
         Update: {
           access_until?: string | null
+          address?: string | null
+          age?: number | null
           course_id?: string
           created_at?: string
+          gender?: string | null
           id?: string
+          mobile?: string | null
           note?: string | null
           payment_ref?: string | null
+          registration_name?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           updated_at?: string
           user_id?: string
