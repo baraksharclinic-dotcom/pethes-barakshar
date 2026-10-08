@@ -13,7 +13,7 @@ import { Accordion,AccordionItem,AccordionTrigger,AccordionContent } from '@/com
 import { useLang,pick } from '@/lib/i18n';
 export function ContentPage({kind}:{kind:'knowledge'|'blog'|'faq'|'announcements'}){
  const {data}=useSuspenseQuery(catalogOptions);const {lang}=useLang();const [search,setSearch]=useState('');const [category,setCategory]=useState('All');
- const titles={knowledge:['The knowledge library','ज्ञानकोश'],blog:['The Barakshar journal','बाराक्षार ब्लॉग'],faq:['A little clarity, before you begin','वारंवार विचारले जाणारे प्रश्न'],announcements:['News from the academy','अकॅडमीच्या घोषणा']};
+ const titles={knowledge:['The knowledge library','ज्ञानकोश'],blog:['The Barakshar journal','बाराक्षार ब्लॉग'],faq:['A little clarity, before you begin','वारंवार विचारले जाणारे प्रश्न'],announcements:['News from the academy','अकॅडमीच्या घोषणा']} as const;
  const source=kind==='knowledge'?data.articles:kind==='blog'?data.posts:kind==='faq'?data.faqs:data.announcements;
  const categories=[...new Set(source.map(s=>'category' in s?s.category:'Academy'))];
  const list=source.filter(s=>JSON.stringify(s).toLowerCase().includes(search.toLowerCase())&&(category==='All'||('category'in s&&s.category===category)));
