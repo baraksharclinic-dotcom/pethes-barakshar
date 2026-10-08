@@ -8,7 +8,7 @@ import { useLang, type TKey } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 
-const nav: { to: string; k: TKey }[] = [
+const nav = [
   { to: "/courses", k: "courses" },
   { to: "/calendar", k: "calendar" },
   { to: "/knowledge", k: "knowledge" },
@@ -16,7 +16,7 @@ const nav: { to: string; k: TKey }[] = [
   { to: "/faq", k: "faq" },
   { to: "/announcements", k: "announcements" },
   { to: "/contact", k: "contact" },
-];
+] as const;
 
 export function SiteHeader() {
   const { t, lang, setLang } = useLang();

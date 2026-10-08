@@ -10,14 +10,47 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AnnouncementsRouteImport } from './routes/announcements'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as KnowledgeRouteImport } from './routes/knowledge'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as KnowledgeIndexRouteImport } from './routes/knowledge.index'
+import { Route as KnowledgeSlugRouteImport } from './routes/knowledge.$slug'
+import { Route as AuthenticatedLearnCourseIdRouteImport } from './routes/_authenticated/learn/$courseId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnouncementsRoute = AnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -25,10 +58,45 @@ const CalendarRoute = CalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoursesRoute = CoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
   getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KnowledgeRoute = KnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
@@ -40,41 +108,155 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CoursesRoute,
 } as any)
+const KnowledgeIndexRoute = KnowledgeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => KnowledgeRoute,
+} as any)
+const KnowledgeSlugRoute = KnowledgeSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => KnowledgeRoute,
+} as any)
+const AuthenticatedLearnCourseIdRoute =
+  AuthenticatedLearnCourseIdRouteImport.update({
+    id: '/learn/$courseId',
+    path: '/learn/$courseId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/calendar': typeof CalendarRoute
+  '/contact': typeof ContactRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/faq': typeof FaqRoute
+  '/knowledge': typeof KnowledgeRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/knowledge/$slug': typeof KnowledgeSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/knowledge/': typeof KnowledgeIndexRoute
+  '/learn/$courseId': typeof AuthenticatedLearnCourseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/auth': typeof AuthRoute
   '/calendar': typeof CalendarRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/knowledge/$slug': typeof KnowledgeSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/courses': typeof CoursesIndexRoute
+  '/knowledge': typeof KnowledgeIndexRoute
+  '/learn/$courseId': typeof AuthenticatedLearnCourseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/announcements': typeof AnnouncementsRoute
+  '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/calendar': typeof CalendarRoute
+  '/contact': typeof ContactRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/faq': typeof FaqRoute
+  '/knowledge': typeof KnowledgeRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/knowledge/$slug': typeof KnowledgeSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/knowledge/': typeof KnowledgeIndexRoute
+  '/_authenticated/learn/$courseId': typeof AuthenticatedLearnCourseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/courses' | '/courses/$slug' | '/courses/'
+  fullPaths:
+    | '/'
+    | '/announcements'
+    | '/auth'
+    | '/blog'
+    | '/calendar'
+    | '/contact'
+    | '/courses'
+    | '/faq'
+    | '/knowledge'
+    | '/reset-password'
+    | '/dashboard'
+    | '/blog/$slug'
+    | '/courses/$slug'
+    | '/knowledge/$slug'
+    | '/blog/'
+    | '/courses/'
+    | '/knowledge/'
+    | '/learn/$courseId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/courses/$slug' | '/courses'
+  to:
+    | '/'
+    | '/announcements'
+    | '/auth'
+    | '/calendar'
+    | '/contact'
+    | '/faq'
+    | '/reset-password'
+    | '/dashboard'
+    | '/blog/$slug'
+    | '/courses/$slug'
+    | '/knowledge/$slug'
+    | '/blog'
+    | '/courses'
+    | '/knowledge'
+    | '/learn/$courseId'
   id:
-    '__root__' | '/' | '/calendar' | '/courses' | '/courses/$slug' | '/courses/'
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/announcements'
+    | '/auth'
+    | '/blog'
+    | '/calendar'
+    | '/contact'
+    | '/courses'
+    | '/faq'
+    | '/knowledge'
+    | '/reset-password'
+    | '/_authenticated/dashboard'
+    | '/blog/$slug'
+    | '/courses/$slug'
+    | '/knowledge/$slug'
+    | '/blog/'
+    | '/courses/'
+    | '/knowledge/'
+    | '/_authenticated/learn/$courseId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AnnouncementsRoute: typeof AnnouncementsRoute
+  AuthRoute: typeof AuthRoute
+  BlogRoute: typeof BlogRouteWithChildren
   CalendarRoute: typeof CalendarRoute
+  ContactRoute: typeof ContactRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  FaqRoute: typeof FaqRoute
+  KnowledgeRoute: typeof KnowledgeRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -86,11 +268,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/announcements': {
+      id: '/announcements'
+      path: '/announcements'
+      fullPath: '/announcements'
+      preLoaderRoute: typeof AnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calendar': {
       id: '/calendar'
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -99,6 +316,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/courses'
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/knowledge': {
+      id: '/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof KnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/courses/': {
       id: '/courses/'
@@ -114,8 +373,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/knowledge/': {
+      id: '/knowledge/'
+      path: '/'
+      fullPath: '/knowledge/'
+      preLoaderRoute: typeof KnowledgeIndexRouteImport
+      parentRoute: typeof KnowledgeRoute
+    }
+    '/knowledge/$slug': {
+      id: '/knowledge/$slug'
+      path: '/$slug'
+      fullPath: '/knowledge/$slug'
+      preLoaderRoute: typeof KnowledgeSlugRouteImport
+      parentRoute: typeof KnowledgeRoute
+    }
+    '/_authenticated/learn/$courseId': {
+      id: '/_authenticated/learn/$courseId'
+      path: '/learn/$courseId'
+      fullPath: '/learn/$courseId'
+      preLoaderRoute: typeof AuthenticatedLearnCourseIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedLearnCourseIdRoute: typeof AuthenticatedLearnCourseIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedLearnCourseIdRoute: AuthenticatedLearnCourseIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface CoursesRouteChildren {
   CoursesSlugRoute: typeof CoursesSlugRoute
@@ -130,10 +435,32 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface KnowledgeRouteChildren {
+  KnowledgeSlugRoute: typeof KnowledgeSlugRoute
+  KnowledgeIndexRoute: typeof KnowledgeIndexRoute
+}
+
+const KnowledgeRouteChildren: KnowledgeRouteChildren = {
+  KnowledgeSlugRoute: KnowledgeSlugRoute,
+  KnowledgeIndexRoute: KnowledgeIndexRoute,
+}
+
+const KnowledgeRouteWithChildren = KnowledgeRoute._addFileChildren(
+  KnowledgeRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AnnouncementsRoute: AnnouncementsRoute,
+  AuthRoute: AuthRoute,
+  BlogRoute: BlogRouteWithChildren,
   CalendarRoute: CalendarRoute,
+  ContactRoute: ContactRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  FaqRoute: FaqRoute,
+  KnowledgeRoute: KnowledgeRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
