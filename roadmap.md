@@ -1,4 +1,5 @@
 # Academy website
+- [ ] Add selected-course registration details and admin review before approval.
 - [x] Public pages with Marathi navigation, course titles and FAQs; English educational article content.
 - [x] Student sign-in, enrollment requests, time-limited lessons, notes and progress.
 - [x] Admin enrollment approval, course/session editing, content creation and notes uploads.
