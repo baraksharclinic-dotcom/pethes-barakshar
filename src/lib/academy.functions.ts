@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
+import { registrationSchema } from './registration-schema';
 import type { Database } from '@/integrations/supabase/types';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 
@@ -24,8 +25,8 @@ export const getStudent=createServerFn({method:'GET'}).middleware([requireSupaba
  if(enrollments.error||progress.error)throw new Error('Unable to load your courses.');
  return {enrollments:enrollments.data??[],progress:progress.data??[]};
 });
-export const requestEnrollment=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({courseId:z.string().uuid(),reference:z.string().trim().min(2).max(200)})).handler(async({data,context})=>{
- const r=await context.supabase.from('enrollments').insert({course_id:data.courseId,user_id:context.userId,payment_ref:data.reference});if(r.error)throw new Error(r.error.code==='23505'?'You already requested this course.':'Unable to submit enrollment.');return {ok:true};
+export const requestEnrollment=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(registrationSchema).handler(async({data,context})=>{
+ const r=await context.supabase.from('enrollments').insert({course_id:data.courseId,user_id:context.userId,payment_ref:data.reference||null,registration_name:data.name,mobile:data.mobile,gender:data.gender,age:data.age,address:data.address});if(r.error)throw new Error(r.error.code==='23505'?'You already requested this course.':'Unable to submit enrollment.');return {ok:true};
 });
 export const getLearning=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).inputValidator(z.object({courseId:z.string().uuid()})).handler(async({data,context})=>{
  const db=context.supabase;

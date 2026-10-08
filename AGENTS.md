@@ -14,3 +14,5 @@
 - Store administrator privileges only in user_roles and enforce checks in server handlers and RLS, because client UI is not a security boundary.
 - Keep a single auth state subscriber in AuthProvider, because duplicate subscribers cause unnecessary invalidation and race conditions.
 - Store notes in a private course-notes bucket by course ID and recordings as Vimeo/Bunny URLs, because students need enrollment-scoped access while providers host media.
+
+- Store registration details on each enrollment and share a validation schema between form and server, because administrators review a course-specific application rather than mutable profile details.
