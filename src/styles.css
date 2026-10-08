@@ -54,7 +54,7 @@
 }
 
 :root {
-  --radius: 0.875rem;
+  --radius: 0.5rem;
   --background: oklch(0.985 0.008 85);
   --foreground: oklch(0.2 0.03 160);
   --card: oklch(1 0 0);
@@ -106,7 +106,7 @@
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.015em; line-height: 1.15; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0; line-height: 1.15; }
   :lang(mr) body, [lang="mr"] { font-family: var(--font-marathi); }
 }
 
@@ -114,5 +114,18 @@
 @utility shadow-soft { box-shadow: var(--shadow-soft); }
 @utility shadow-lift { box-shadow: var(--shadow-lift); }
 @utility container-page { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: 1.25rem; }
-@utility eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent-foreground); }
+@utility eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; color: var(--color-accent-foreground); }
 @utility prose-body { font-size: 1.1rem; line-height: 1.8; white-space: pre-line; }
+
+.hero-home { position:relative; min-height:640px; display:flex; align-items:center; isolation:isolate; background:var(--ink); color:var(--ink-foreground); }
+.hero-home > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2; }
+.hero-home::before { content:""; position:absolute; inset:0; background:linear-gradient(90deg,oklch(0.17 0.03 160 / 0.97),oklch(0.17 0.03 160 / 0.75) 43%,oklch(0.17 0.03 160 / 0.05)); z-index:-1; }
+.hero-home h1 { font-size:3.7rem; max-width:700px; }
+.section-title { font-size:2.4rem; font-weight:600; }
+.course-art { height:165px; background:var(--secondary); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; color:var(--primary); }
+.course-art:nth-child(even) { background:var(--accent); }
+.field { display:grid; gap:6px; font-size:0.95rem; font-weight:600; }
+.field input,.field select,.field textarea { background:var(--card); border:1px solid var(--input); border-radius:6px; padding:10px 12px; font:inherit; width:100%; color:var(--foreground); }
+.field textarea { min-height:120px; }
+.learning-video { width:100%; aspect-ratio:16/9; border:0; background:var(--ink); }
+@media(max-width:640px) { .hero-home { min-height:640px; } .hero-home h1 { font-size:2.65rem; } .hero-home::before { background:oklch(0.17 0.03 160 / 0.83); } .section-title { font-size:2rem; } }
