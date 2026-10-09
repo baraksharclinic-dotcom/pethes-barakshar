@@ -1,4 +1,5 @@
 # Academy website
+- [ ] Add supplied Prasthavna audio to Foundation Recordings, persisted listening progress and a Files section for future PDFs.
 - [ ] Switch audio/PDF delivery to token-protected Bunny CDN with embedded playback/viewing and no download controls.
 - [ ] Temporarily open Foundation Course in Biochemic Medicine to all signed-in students without changing payment approval records.
 - [x] Add selected-course registration form, validated private details and admin review before approval; public form flow and validation tests passed.
