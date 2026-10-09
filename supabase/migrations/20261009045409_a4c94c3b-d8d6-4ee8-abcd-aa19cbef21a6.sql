@@ -1,0 +1,1 @@
+ALTER FUNCTION public.has_course_access(uuid,uuid) SECURITY INVOKER;
