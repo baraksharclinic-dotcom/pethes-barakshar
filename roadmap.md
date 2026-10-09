@@ -1,5 +1,4 @@
 # Academy website
-- [ ] Add separate admin sign-in, manually provision the requested approval administrator, and restrict their permissions to enrollment review and decisions.
 - [x] Add selected-course registration form, validated private details and admin review before approval; public form flow and validation tests passed.
 - [x] Public pages with Marathi navigation, course titles and FAQs; English educational article content.
 - [x] Student sign-in, enrollment requests, time-limited lessons, notes and progress.
