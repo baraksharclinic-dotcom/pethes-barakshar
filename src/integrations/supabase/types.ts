@@ -166,6 +166,7 @@ export type Database = {
           slug: string
           summary: string
           summary_mr: string | null
+          temporary_student_access: boolean
           title: string
           title_mr: string | null
           updated_at: string
@@ -184,6 +185,7 @@ export type Database = {
           slug: string
           summary: string
           summary_mr?: string | null
+          temporary_student_access?: boolean
           title: string
           title_mr?: string | null
           updated_at?: string
@@ -202,6 +204,7 @@ export type Database = {
           slug?: string
           summary?: string
           summary_mr?: string | null
+          temporary_student_access?: boolean
           title?: string
           title_mr?: string | null
           updated_at?: string
@@ -323,6 +326,41 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      lesson_listening_progress: {
+        Row: {
+          created_at: string
+          duration_seconds: number
+          lesson_id: string
+          position_seconds: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number
+          lesson_id: string
+          position_seconds?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number
+          lesson_id?: string
+          position_seconds?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_listening_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lesson_progress: {
         Row: {
@@ -467,6 +505,10 @@ export type Database = {
         }[]
       }
       has_active_enrollment: {
+        Args: { _course_id: string; _user_id: string }
+        Returns: boolean
+      }
+      has_course_access: {
         Args: { _course_id: string; _user_id: string }
         Returns: boolean
       }
