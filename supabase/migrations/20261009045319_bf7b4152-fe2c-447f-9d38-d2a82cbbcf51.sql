@@ -1,0 +1,18 @@
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS temporary_student_access boolean NOT NULL DEFAULT false;
+UPDATE public.courses SET temporary_student_access=true WHERE slug='foundation-biochemic';
+CREATE OR REPLACE FUNCTION public.has_course_access(_user_id uuid,_course_id uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT _user_id=auth.uid() AND (public.has_active_enrollment(_user_id,_course_id) OR EXISTS(SELECT 1 FROM public.courses WHERE id=_course_id AND published AND temporary_student_access)); $$;
+REVOKE ALL ON FUNCTION public.has_course_access(uuid,uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.has_course_access(uuid,uuid) TO authenticated;
+DROP POLICY IF EXISTS "enrolled read released lessons" ON public.lessons;
+CREATE POLICY "enrolled read released lessons" ON public.lessons FOR SELECT TO authenticated USING ((public.has_course_access(auth.uid(),course_id) AND (available_from IS NULL OR available_from<=now())) OR public.has_role(auth.uid(),'admin'));
+CREATE TABLE public.lesson_listening_progress (user_id uuid NOT NULL, lesson_id uuid NOT NULL REFERENCES public.lessons(id) ON DELETE CASCADE, position_seconds double precision NOT NULL DEFAULT 0, duration_seconds double precision NOT NULL DEFAULT 0, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(user_id,lesson_id));
+GRANT SELECT,INSERT,UPDATE ON public.lesson_listening_progress TO authenticated;
+GRANT ALL ON public.lesson_listening_progress TO service_role;
+ALTER TABLE public.lesson_listening_progress ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "read own listening position" ON public.lesson_listening_progress FOR SELECT TO authenticated USING(user_id=auth.uid());
+CREATE POLICY "save accessible lesson position" ON public.lesson_listening_progress FOR INSERT TO authenticated WITH CHECK(user_id=auth.uid() AND EXISTS(SELECT 1 FROM public.lessons WHERE id=lesson_id AND (available_from IS NULL OR available_from<=now())));
+CREATE POLICY "update accessible lesson position" ON public.lesson_listening_progress FOR UPDATE TO authenticated USING(user_id=auth.uid()) WITH CHECK(user_id=auth.uid() AND EXISTS(SELECT 1 FROM public.lessons WHERE id=lesson_id AND (available_from IS NULL OR available_from<=now())));
+CREATE TRIGGER listening_progress_updated BEFORE UPDATE ON public.lesson_listening_progress FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE OR REPLACE FUNCTION public.validate_listening_position() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN IF new.position_seconds<0 OR new.duration_seconds<=0 OR new.position_seconds>new.duration_seconds OR new.duration_seconds>86400 OR new.position_seconds='NaN'::float8 OR new.duration_seconds='NaN'::float8 THEN RAISE EXCEPTION 'Invalid listening position'; END IF; RETURN new; END; $$;
+CREATE TRIGGER validate_listening_position BEFORE INSERT OR UPDATE ON public.lesson_listening_progress FOR EACH ROW EXECUTE FUNCTION public.validate_listening_position();
+INSERT INTO public.lessons(id,course_id,position,title,title_mr,summary,duration_minutes,audio_url,available_from) SELECT 'e3c57ef1-86d1-4eb9-9379-c0ed9c9a6dd0',id,0,'Prasthavna','प्रस्तावना','',1,'https://barakshar-cdn.b-cdn.net/Prasthavna.mp3',NULL FROM public.courses WHERE slug='foundation-biochemic' ON CONFLICT(id) DO UPDATE SET audio_url=EXCLUDED.audio_url,available_from=NULL;
