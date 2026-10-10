@@ -1,7 +1,8 @@
 # Academy website
-- [ ] Add supplied Prasthavna audio to Foundation Recordings, persisted listening progress and a Files section for future PDFs.
-- [ ] Switch audio/PDF delivery to token-protected Bunny CDN with embedded playback/viewing and no download controls.
-- [ ] Temporarily open Foundation Course in Biochemic Medicine to all signed-in students without changing payment approval records.
+- [x] Attach supplied Prasthavna audio to Foundation Recordings, add tested playback/progress controls and a Files section for future PDFs.
+- [ ] Verify real Prasthavna playback — Bunny returns 403; needs corrected Bunny access settings or token-signing credentials.
+- [ ] Enable token-protected Bunny delivery — needs Bunny signing key (secure form was declined); direct delivery and embedded controls are implemented.
+- [x] Temporarily open Foundation Course in Biochemic Medicine to all signed-in students without changing payment approval records.
 - [x] Add selected-course registration form, validated private details and admin review before approval; public form flow and validation tests passed.
 - [x] Public pages with Marathi navigation, course titles and FAQs; English educational article content.
 - [x] Student sign-in, enrollment requests, time-limited lessons, notes and progress.
