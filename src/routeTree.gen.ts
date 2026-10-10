@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthConfirmRouteImport } from './routes/auth-confirm'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -47,6 +48,11 @@ const AnnouncementsRoute = AnnouncementsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthConfirmRoute = AuthConfirmRouteImport.update({
+  id: '/auth-confirm',
+  path: '/auth-confirm',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/auth': typeof AuthRoute
+  '/auth-confirm': typeof AuthConfirmRoute
   '/blog': typeof BlogRouteWithChildren
   '/calendar': typeof CalendarRoute
   '/contact': typeof ContactRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/auth': typeof AuthRoute
+  '/auth-confirm': typeof AuthConfirmRoute
   '/calendar': typeof CalendarRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/announcements': typeof AnnouncementsRoute
   '/auth': typeof AuthRoute
+  '/auth-confirm': typeof AuthConfirmRoute
   '/blog': typeof BlogRouteWithChildren
   '/calendar': typeof CalendarRoute
   '/contact': typeof ContactRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/'
     | '/announcements'
     | '/auth'
+    | '/auth-confirm'
     | '/blog'
     | '/calendar'
     | '/contact'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/'
     | '/announcements'
     | '/auth'
+    | '/auth-confirm'
     | '/calendar'
     | '/contact'
     | '/faq'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/announcements'
     | '/auth'
+    | '/auth-confirm'
     | '/blog'
     | '/calendar'
     | '/contact'
@@ -262,6 +274,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AnnouncementsRoute: typeof AnnouncementsRoute
   AuthRoute: typeof AuthRoute
+  AuthConfirmRoute: typeof AuthConfirmRoute
   BlogRoute: typeof BlogRouteWithChildren
   CalendarRoute: typeof CalendarRoute
   ContactRoute: typeof ContactRoute
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth-confirm': {
+      id: '/auth-confirm'
+      path: '/auth-confirm'
+      fullPath: '/auth-confirm'
+      preLoaderRoute: typeof AuthConfirmRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -475,6 +495,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AnnouncementsRoute: AnnouncementsRoute,
   AuthRoute: AuthRoute,
+  AuthConfirmRoute: AuthConfirmRoute,
   BlogRoute: BlogRouteWithChildren,
   CalendarRoute: CalendarRoute,
   ContactRoute: ContactRoute,
