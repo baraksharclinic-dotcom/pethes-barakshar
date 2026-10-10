@@ -5,7 +5,7 @@ import { pageHead } from '@/lib/academy';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, LoaderCircle } from 'lucide-react';
 
-export const Route = createFileRoute('/auth/confirm')({
+export const Route = createFileRoute('/auth-confirm')({
   head: () => pageHead('Confirm your student account', 'Complete email verification and enter your Barakshar student courses.'),
   component: ConfirmAccount,
 });
@@ -25,10 +25,10 @@ function ConfirmAccount() {
       const linkError = url.searchParams.has('error') || hash.has('error');
       const code = url.searchParams.get('code');
       const tokenHash = url.searchParams.get('token_hash');
-      window.history.replaceState(null, '', '/auth/confirm');
       if (linkError) throw new Error('This confirmation link has expired or was already used. Try signing in, or request a new confirmation email.');
       // Supabase's default client consumes implicit session fragments during initialization.
       const initial = await supabase.auth.getSession();
+      window.history.replaceState(null, "", "/auth-confirm");
       if (code && !initial.data.session) {
         const result = await supabase.auth.exchangeCodeForSession(code);
         if (result.error) throw new Error('This link cannot be completed here. Open it in the browser used to sign up, or sign in if your email is already confirmed.');
