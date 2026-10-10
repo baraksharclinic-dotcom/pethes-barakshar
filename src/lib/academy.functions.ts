@@ -21,17 +21,17 @@ export const getOutline=createServerFn({method:'GET'}).inputValidator(z.object({
 });
 export const getStudent=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  const {supabase:db,userId}=context;
- const [enrollments,progress]=await Promise.all([db.from('enrollments').select('*, courses(*)').eq('user_id',userId),db.from('lesson_progress').select('*').eq('user_id',userId)]);
- if(enrollments.error||progress.error)throw new Error('Unable to load your courses.');
- return {enrollments:enrollments.data??[],progress:progress.data??[]};
+  const [enrollments,progress,openCourses]=await Promise.all([db.from('enrollments').select('*, courses(*)').eq('user_id',userId),db.from('lesson_progress').select('*').eq('user_id',userId),db.from('courses').select('*').eq('published',true).eq('temporary_student_access',true)]);
+  if(enrollments.error||progress.error||openCourses.error)throw new Error('Unable to load your courses.');
+  return {enrollments:enrollments.data??[],progress:progress.data??[],openCourses:openCourses.data??[]};
 });
 export const requestEnrollment=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(registrationSchema).handler(async({data,context})=>{
  const r=await context.supabase.from('enrollments').insert({course_id:data.courseId,user_id:context.userId,payment_ref:data.reference||null,registration_name:data.name,mobile:data.mobile,gender:data.gender,age:data.age,address:data.address});if(r.error)throw new Error(r.error.code==='23505'?'You already requested this course.':'Unable to submit enrollment.');return {ok:true};
 });
 export const getLearning=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).inputValidator(z.object({courseId:z.string().uuid()})).handler(async({data,context})=>{
  const db=context.supabase;
- const access=await db.from('enrollments').select('*').eq('user_id',context.userId).eq('course_id',data.courseId).eq('status','approved').maybeSingle();
- if(!access.data || (access.data.access_until && new Date(access.data.access_until)<=new Date()))throw new Error('Your course access is inactive or has expired.');
+  const access=await db.rpc('has_course_access',{_user_id:context.userId,_course_id:data.courseId});
+  if(access.error || !access.data)throw new Error('Your course access is inactive or has expired.');
  const lessons=await db.from('lessons').select('*').eq('course_id',data.courseId).order('position');if(lessons.error)throw new Error('Unable to load lessons');
  // Do not return recordings or notes before scheduled release.
  return (lessons.data??[]).map(l=>l.available_from && new Date(l.available_from)>new Date()?{...l,video_url:null,audio_url:null,notes_path:null}:l);
@@ -40,9 +40,11 @@ export const completeLesson=createServerFn({method:'POST'}).middleware([requireS
  const lesson=await context.supabase.from('lessons').select('id, available_from').eq('id',data.lessonId).maybeSingle();if(!lesson.data|| (lesson.data.available_from && new Date(lesson.data.available_from)>new Date()))throw new Error('Lesson unavailable');
  const r=await context.supabase.from('lesson_progress').upsert({user_id:context.userId,lesson_id:data.lessonId});if(r.error)throw new Error('Unable to save progress');return {ok:true};
 });
-export const downloadNotes=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({lessonId:z.string().uuid()})).handler(async({data,context})=>{
- const r=await context.supabase.from('lessons').select('notes_path,available_from').eq('id',data.lessonId).maybeSingle();if(!r.data?.notes_path || (r.data.available_from && new Date(r.data.available_from)>new Date()))throw new Error('Notes unavailable');
- const link=await context.supabase.storage.from('course-notes').createSignedUrl(r.data.notes_path,60,{download:true});if(link.error)throw new Error('Unable to download notes');return link.data.signedUrl;
+export const getListeningProgress=createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
+ const r=await context.supabase.from('lesson_listening_progress').select('*').eq('user_id',context.userId);if(r.error)throw new Error('Unable to load listening progress');return r.data??[];
+});
+export const saveListeningProgress=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({lessonId:z.string().uuid(),position:z.number().finite().min(0),duration:z.number().finite().positive().max(86400)}).refine(d=>d.position<=d.duration)).handler(async({data,context})=>{
+ const r=await context.supabase.from('lesson_listening_progress').upsert({user_id:context.userId,lesson_id:data.lessonId,position_seconds:data.position,duration_seconds:data.duration});if(r.error)throw new Error('Unable to save listening progress');return {ok:true};
 });
 export const sendContact=createServerFn({method:'POST'}).inputValidator(z.object({name:z.string().trim().min(1).max(120),email:z.string().email().max(200),message:z.string().trim().min(5).max(4000)})).handler(async({data})=>{
  const url=process.env['SUPABASE_URL'];const key=process.env['SUPABASE_PUBLISHABLE_KEY'];if(!url||!key)throw new Error('Service unavailable');
@@ -62,7 +64,7 @@ export const approveEnrollment=createServerFn({method:'POST'}).middleware([requi
 const media=z.string().url().refine(s=>{const u=new URL(s);return u.protocol==='https:'&&(u.hostname==='player.vimeo.com'||u.hostname==='iframe.mediadelivery.net');},'Use a Vimeo or Bunny embed URL').or(z.literal(''));
 export const saveAdmin=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.discriminatedUnion('type',[
  z.object({type:z.literal('course'),id:z.string().uuid().optional(),title:z.string().min(2),title_mr:z.string(),slug:z.string().regex(/^[a-z0-9-]+$/),summary:z.string().min(5),summary_mr:z.string(),fee_inr:z.number().int().min(0),access_days:z.number().int().min(1),level:z.string(),mode:z.string(),duration_weeks:z.number().int().min(1)}),
- z.object({type:z.literal('lesson'),id:z.string().uuid().optional(),course_id:z.string().uuid(),title:z.string().min(2),title_mr:z.string(),position:z.number().int().min(1),duration_minutes:z.number().int().min(1),video_url:media,audio_url:z.string().url().or(z.literal('')),available_from:z.string().nullable(),notes_path:z.string().nullable()}),
+  z.object({type:z.literal('lesson'),id:z.string().uuid().optional(),course_id:z.string().uuid(),title:z.string().min(2),title_mr:z.string(),position:z.number().int().min(0),duration_minutes:z.number().int().min(1),video_url:media,audio_url:z.string().url().refine(s=>new URL(s).protocol==='https:'&&new URL(s).hostname==='barakshar-cdn.b-cdn.net','Use your Bunny CDN audio URL').or(z.literal('')),available_from:z.string().nullable(),notes_path:z.string().url().refine(s=>new URL(s).protocol==='https:'&&new URL(s).hostname==='barakshar-cdn.b-cdn.net'&&new URL(s).pathname.toLowerCase().endsWith('.pdf'),'Use your Bunny CDN PDF URL').nullable()}),
  z.object({type:z.literal('session'),id:z.string().uuid().optional(),course_id:z.string().uuid(),title:z.string().min(2),session_type:z.string(),starts_at:z.string(),duration_minutes:z.number().int().min(1),seats_total:z.number().int().min(1),seats_booked:z.number().int().min(0),location:z.string().min(2)}),
  z.object({type:z.literal('announcement'),title:z.string().min(2),title_mr:z.string(),body:z.string().min(5),pinned:z.boolean()}),
  z.object({type:z.literal('blog'),title:z.string().min(2),slug:z.string().regex(/^[a-z0-9-]+$/),excerpt:z.string().min(5),body:z.string().min(5),category:z.string().min(2)}),
