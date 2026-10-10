@@ -1,4 +1,5 @@
 # Academy website
+- [ ] Repair confirmation return page and email destination; retain Foundation student access and paid-course approval rules.
 - [x] Attach supplied Prasthavna audio to Foundation Recordings, add tested playback/progress controls and a Files section for future PDFs.
 - [ ] Verify real Prasthavna playback — Bunny returns 403; needs corrected Bunny access settings or token-signing credentials.
 - [ ] Enable token-protected Bunny delivery — needs Bunny signing key (secure form was declined); direct delivery and embedded controls are implemented.
