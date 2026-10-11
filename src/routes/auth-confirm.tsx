@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { pageHead } from '@/lib/academy';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, LoaderCircle } from 'lucide-react';
+import { completeAuth } from '@/lib/complete-auth';
 
 export const Route = createFileRoute('/auth-confirm')({
   head: () => pageHead('Confirm your student account', 'Complete email verification and enter your Barakshar student courses.'),
@@ -20,29 +21,12 @@ function ConfirmAccount() {
     started.current = true;
     const confirm = async () => {
       const url = new URL(window.location.href);
-      const hash = new URLSearchParams(url.hash.slice(1));
-      // Do not display provider errors or leave credentials in browser history.
-      const linkError = url.searchParams.has('error') || hash.has('error');
-      const code = url.searchParams.get('code');
-      const tokenHash = url.searchParams.get('token_hash');
-      if (linkError) {
-        window.history.replaceState(null, '', '/auth-confirm');
-        throw new Error('This confirmation link has expired or was already used. Try signing in, or request a new confirmation email.');
-      }
-      // Supabase's default client consumes implicit session fragments during initialization.
-      const initial = await supabase.auth.getSession();
-      window.history.replaceState(null, "", "/auth-confirm");
-      if (code && !initial.data.session) {
-        const result = await supabase.auth.exchangeCodeForSession(code);
-        if (result.error) throw new Error('This link cannot be completed here. Open it in the browser used to sign up, or sign in if your email is already confirmed.');
-      } else if (tokenHash && !initial.data.session) {
-        const result = await supabase.auth.verifyOtp({token_hash: tokenHash, type: 'signup'});
-        if (result.error) throw new Error('This confirmation link has expired or was already used. Try signing in, or request a new confirmation email.');
-      }
-      const user = await supabase.auth.getUser();
-      if (user.error || !user.data.user?.email_confirmed_at) throw new Error('Sign in to continue. If your email is not confirmed, request a new confirmation email.');
+      const course = url.searchParams.get('course');
+      try { await completeAuth(supabase, url); }
+      finally { window.history.replaceState(null, '', '/auth-confirm'); }
       setVerified(true);
-      await navigate({to:'/dashboard', replace:true});
+      if (course && /^[a-z0-9-]+$/.test(course)) await navigate({to:'/courses/$slug', params:{slug:course}, replace:true});
+      else await navigate({to:'/dashboard', replace:true});
     };
     void confirm().catch(e => setError(e instanceof Error ? e.message : 'Unable to complete confirmation. Please sign in again.'));
   }, [navigate]);
