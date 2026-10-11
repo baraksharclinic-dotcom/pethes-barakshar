@@ -1,5 +1,6 @@
 # Academy website
-- [ ] Repair confirmation return page and email destination; retain Foundation student access and paid-course approval rules.
+- [x] Add tested public confirmation return page, canonical email destinations and resend confirmation; retain Foundation and paid-course access rules.
+- [ ] Complete live confirmation redirect — external Supabase falls back to localhost:3000 and ignores published callback; owner must update Authentication URL Configuration and publish the new confirmation page.
 - [x] Attach supplied Prasthavna audio to Foundation Recordings, add tested playback/progress controls and a Files section for future PDFs.
 - [ ] Verify real Prasthavna playback — Bunny returns 403; needs corrected Bunny access settings or token-signing credentials.
 - [ ] Enable token-protected Bunny delivery — needs Bunny signing key (secure form was declined); direct delivery and embedded controls are implemented.

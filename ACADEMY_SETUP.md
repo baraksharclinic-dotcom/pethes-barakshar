@@ -1,6 +1,6 @@
 # Academy setup before launch
 
-- The website is connected to the existing external Supabase project. Email sign-in settings have not been verified against hosted configuration.
+- The website is connected to external Supabase. A public verification redirect probe confirmed its fallback is http://localhost:3000 and the requested published callback is not honored. In Supabase Authentication → URL Configuration set Site URL to https://pethes-barakshar.lovable.app and allow https://pethes-barakshar.lovable.app/**. Publish the updated app before sending new confirmations. Other hosted sign-in settings remain unverified.
 - Create the owner account in the website, confirm its email, then have an authorized database administrator grant its user ID the `admin` role in `public.user_roles`. The app never promotes users from their profile metadata.
 - Four courses, their prices, schedules, venue, educational articles, FAQ turnaround promises and history are sample content, not verified business facts. Replace them before launch.
 - Lesson Vimeo URLs are sample provider videos, not academy teaching recordings. Replace them with your Vimeo/Bunny embed URLs. Set allowed playback domains in the provider dashboard and disable downloads. Enrollment gating alone cannot prevent copied provider URLs, screen recording or sharing already downloaded PDFs.

@@ -25,7 +25,10 @@ function ConfirmAccount() {
       const linkError = url.searchParams.has('error') || hash.has('error');
       const code = url.searchParams.get('code');
       const tokenHash = url.searchParams.get('token_hash');
-      if (linkError) throw new Error('This confirmation link has expired or was already used. Try signing in, or request a new confirmation email.');
+      if (linkError) {
+        window.history.replaceState(null, '', '/auth-confirm');
+        throw new Error('This confirmation link has expired or was already used. Try signing in, or request a new confirmation email.');
+      }
       // Supabase's default client consumes implicit session fragments during initialization.
       const initial = await supabase.auth.getSession();
       window.history.replaceState(null, "", "/auth-confirm");
