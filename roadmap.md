@@ -1,4 +1,5 @@
 # Academy website
+- [ ] Repair confirmation session handling and add Google sign-in with verified student course access; external provider and live redirect configuration may require owner setup.
 - [x] Add tested public confirmation return page, canonical email destinations and resend confirmation; retain Foundation and paid-course access rules.
 - [ ] Complete live confirmation redirect — external Supabase falls back to localhost:3000 and ignores published callback; owner must update Authentication URL Configuration and publish the new confirmation page.
 - [x] Attach supplied Prasthavna audio to Foundation Recordings, add tested playback/progress controls and a Files section for future PDFs.
