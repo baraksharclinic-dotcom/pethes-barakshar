@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Academy architecture
+- Use a single canonical public origin for emailed auth destinations and a public confirmation page that validates the session before opening student courses, because preview origins and local development addresses are not reliable email destinations.
 - Keep public content in loader-backed catalog queries and protected student/admin operations in authenticated server functions, because preview and published data must obey the same access controls.
 - Store administrator privileges only in user_roles and enforce checks in server handlers and RLS, because client UI is not a security boundary.
 - Keep a single auth state subscriber in AuthProvider, because duplicate subscribers cause unnecessary invalidation and race conditions.
