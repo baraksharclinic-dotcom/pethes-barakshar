@@ -11,7 +11,7 @@
 
 ## Academy architecture
 - Use a single canonical public origin for emailed auth destinations and a public confirmation page that validates the session before opening student courses, because preview origins and local development addresses are not reliable email destinations.
-- Complete explicit confirmation credentials before validating the user, and use the Lovable OAuth broker with Supabase session installation for Google; both methods must share existing course-access checks.
+- Complete explicit confirmation credentials before validating the user; Google uses the owner-configured external Supabase provider and canonical public callback because the hosted broker rejects this project's Google provider. Both methods share existing course-access checks.
 - Keep public content in loader-backed catalog queries and protected student/admin operations in authenticated server functions, because preview and published data must obey the same access controls.
 - Store administrator privileges only in user_roles and enforce checks in server handlers and RLS, because client UI is not a security boundary.
 - Keep a single auth state subscriber in AuthProvider, because duplicate subscribers cause unnecessary invalidation and race conditions.
