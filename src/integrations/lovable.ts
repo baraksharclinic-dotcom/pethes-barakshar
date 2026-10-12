@@ -1,14 +1,20 @@
-import { createLovableAuth } from '@lovable.dev/cloud-auth-js';
 import { supabase } from '@/integrations/supabase/client';
+import { academyOrigin } from '@/lib/auth-redirect';
 
-const broker = createLovableAuth();
 export const lovable = {
   auth: {
     async signInWithOAuth(provider: 'google', options: { redirect_uri: string }) {
-      const result = await broker.signInWithOAuth(provider, options);
-      if (result.error || result.redirected) return result;
-      const session = await supabase.auth.setSession(result.tokens);
-      return { ...result, error: session.error };
+      // This is an external Supabase project: use its owner-configured Google provider.
+      // The hosted Lovable broker rejects this project's provider as unsupported.
+      const requested = new URL(options.redirect_uri);
+      const destination = new URL('/auth-confirm', academyOrigin);
+      const course = requested.searchParams.get('course');
+      if (course && /^[a-z0-9-]+$/.test(course)) destination.searchParams.set('course', course);
+      const result = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: destination.toString(), queryParams: { prompt: 'select_account' } },
+      });
+      return { error: result.error, redirected: !result.error };
     },
   },
 };

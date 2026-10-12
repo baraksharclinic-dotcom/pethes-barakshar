@@ -29,9 +29,13 @@ describe('student confirmation session', () => {
     await completeAuth(client, new URL('https://academy.test/auth-confirm#access_token=test-access&refresh_token=test-refresh'));
     expect(auth.setSession).toHaveBeenCalledWith({ access_token: 'test-access', refresh_token: 'test-refresh' });
   });
-  it('rejects expired links instead of admitting an existing session', async () => {
+  it('recovers a verified session when a consumed link is reopened', async () => {
     const { client } = fixture();
-    await expect(completeAuth(client, new URL('https://academy.test/auth-confirm#error=access_denied'))).rejects.toThrow('expired');
+    await expect(completeAuth(client, new URL('https://academy.test/auth-confirm#error=access_denied'))).resolves.toMatchObject({ id: 'student' });
+  });
+  it('does not bypass sign-in for an invalid link without a session', async () => {
+    const { client } = fixture(false);
+    await expect(completeAuth(client, new URL('https://academy.test/auth-confirm#error=access_denied'))).rejects.toThrow('Please sign in');
   });
   it('does not grant access without a verified server user', async () => {
     const { client } = fixture(false);

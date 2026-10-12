@@ -28,7 +28,10 @@ function ConfirmAccount() {
       if (course && /^[a-z0-9-]+$/.test(course)) await navigate({to:'/courses/$slug', params:{slug:course}, replace:true});
       else await navigate({to:'/dashboard', replace:true});
     };
-    void confirm().catch(e => setError(e instanceof Error ? e.message : 'Unable to complete confirmation. Please sign in again.'));
+    void confirm().catch(() => {
+      // Failed callbacks return to the usable sign-in screen, never an email-only dead end.
+      void navigate({to:'/auth', replace:true});
+    });
   }, [navigate]);
   return <div className="container-page py-20"><div className="mx-auto max-w-lg"><h1 className="text-3xl">{error ? 'Email confirmation' : verified ? 'Email confirmed' : 'Confirming your email'}</h1>{error ? <><p role="alert" className="mt-5 text-muted-foreground">{error}</p><Button asChild className="mt-6"><Link to="/auth">Sign in or resend confirmation</Link></Button></> : <p role="status" className="mt-5 flex items-center gap-3 text-muted-foreground">{verified ? <CheckCircle2/> : <LoaderCircle className="animate-spin motion-reduce:animate-none"/>}{verified ? 'Opening your student courses…' : 'Checking your confirmation…'}</p>}</div></div>;
 }
