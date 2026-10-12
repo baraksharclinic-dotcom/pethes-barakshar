@@ -1,4 +1,5 @@
 # Academy website
+- [ ] Verify Google recovery: published broker and Supabase provider both redirect; consumed links must recover verified sessions or return to sign-in, without bypassing access checks.
 - [x] Repair explicit email confirmation session handling and auth-state races; add Google sign-in with shared course-access rules (19 regression tests passed; public callback recovery and login button checked).
 - [ ] Activate Google sign-in — hosted settings confirm Google disabled; owner must configure external Supabase Google provider and callback allowlist.
 - [x] Add tested public confirmation return page, canonical email destinations and resend confirmation; retain Foundation and paid-course access rules.

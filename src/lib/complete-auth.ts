@@ -3,7 +3,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export async function completeAuth(client: SupabaseClient, url: URL) {
   const hash = new URLSearchParams(url.hash.slice(1));
   if (url.searchParams.has('error') || hash.has('error')) {
-    throw new Error('This sign-in link has expired or was already used. Sign in or request a new confirmation email.');
+    // Reopening a consumed email link must not block a separately valid Google/email session.
+    await client.auth.getSession();
+    const existing = await client.auth.getUser();
+    if (!existing.error && existing.data.user?.email_confirmed_at) return existing.data.user;
+    throw new Error('Please sign in to continue to your courses.');
   }
   const code = url.searchParams.get('code');
   const tokenHash = url.searchParams.get('token_hash');
@@ -14,7 +18,11 @@ export async function completeAuth(client: SupabaseClient, url: URL) {
     if (result.error) throw new Error('This confirmation link has expired or was already used. Sign in or request a new email.');
   } else if (code) {
     const result = await client.auth.exchangeCodeForSession(code);
-    if (result.error) throw new Error('Open this link in the browser used to sign up, or sign in with your password if your email is confirmed.');
+    if (result.error) {
+      const existing = await client.auth.getUser();
+      if (!existing.error && existing.data.user?.email_confirmed_at) return existing.data.user;
+      throw new Error('Please sign in to continue to your courses.');
+    }
   } else if (accessToken && refreshToken) {
     const result = await client.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
     if (result.error) throw new Error('Unable to restore your sign-in. Please sign in again.');
