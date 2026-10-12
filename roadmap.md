@@ -2,7 +2,7 @@
 - [x] Diagnose Google rejection: hosted broker returns provider-not-supported; use configured external Supabase Google provider and recover valid sessions from consumed email links (9 tests passed).
 - [ ] Verify real Google account completion after republishing — Google credentials/consent must be accepted by Google; no authenticated test session is available.
 - [x] Repair explicit email confirmation session handling and auth-state races; add Google sign-in with shared course-access rules (19 regression tests passed; public callback recovery and login button checked).
-- [ ] Activate Google sign-in — hosted settings confirm Google disabled; owner must configure external Supabase Google provider and callback allowlist.
+- [x] Activate Google entry flow — external Supabase provider now opens Google’s sign-in screen; browser button flow verified.
 - [x] Add tested public confirmation return page, canonical email destinations and resend confirmation; retain Foundation and paid-course access rules.
 - [ ] Complete live confirmation redirect — external Supabase falls back to localhost:3000 and ignores published callback; owner must update Authentication URL Configuration and publish the new confirmation page.
 - [x] Attach supplied Prasthavna audio to Foundation Recordings, add tested playback/progress controls and a Files section for future PDFs.
