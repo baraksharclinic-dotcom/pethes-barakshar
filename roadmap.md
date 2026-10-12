@@ -1,4 +1,5 @@
 # Academy website
+- [ ] Repair Foundation playback failure — confirmed Bunny HTTP 403; obtain signing credentials, preserve direct delivery and verify playback.
 - [x] Diagnose Google rejection: hosted broker returns provider-not-supported; use configured external Supabase Google provider and recover valid sessions from consumed email links (9 tests passed).
 - [ ] Verify real Google account completion after republishing — Google credentials/consent must be accepted by Google; no authenticated test session is available.
 - [x] Repair explicit email confirmation session handling and auth-state races; add Google sign-in with shared course-access rules (19 regression tests passed; public callback recovery and login button checked).
