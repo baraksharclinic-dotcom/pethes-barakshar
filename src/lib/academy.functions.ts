@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { registrationSchema } from './registration-schema';
+import { lessonSchema } from './lesson-schema';
 import { signBunnyUrl } from './bunny-signing';
 import { setResponseHeader } from '@tanstack/react-start/server';
 import type { Database } from '@/integrations/supabase/types';
@@ -47,7 +48,7 @@ export const getLearning=createServerFn({method:'GET'}).middleware([requireSupab
  return Promise.all((lessons.data??[]).map(async l=>{
    if(l.available_from && new Date(l.available_from)>new Date())return {...l,video_url:null,audio_url:null,notes_path:null};
    const [audio_url,notes_path]=await Promise.all([sign(l.audio_url),sign(l.notes_path)]);
-   return {...l,audio_url,notes_path};
+   return {...l,video_url:null,audio_url,notes_path};
  }));
 });
 export const completeLesson=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({lessonId:z.string().uuid()})).handler(async({data,context})=>{
@@ -75,10 +76,9 @@ export const approveEnrollment=createServerFn({method:'POST'}).middleware([requi
  const {data:admin}=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});if(!admin)throw new Error('Administrator access required');
  const r=await context.supabase.from('enrollments').update({status:data.status,access_until:data.status==='approved'?new Date(Date.now()+data.days*86400000).toISOString():null}).eq('id',data.id);if(r.error)throw new Error('Unable to update enrollment');return {ok:true};
 });
-const media=z.string().url().refine(s=>{const u=new URL(s);return u.protocol==='https:'&&(u.hostname==='player.vimeo.com'||u.hostname==='iframe.mediadelivery.net');},'Use a Vimeo or Bunny embed URL').or(z.literal(''));
 export const saveAdmin=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.discriminatedUnion('type',[
  z.object({type:z.literal('course'),id:z.string().uuid().optional(),title:z.string().min(2),title_mr:z.string(),slug:z.string().regex(/^[a-z0-9-]+$/),summary:z.string().min(5),summary_mr:z.string(),fee_inr:z.number().int().min(0),access_days:z.number().int().min(1),level:z.string(),mode:z.string(),duration_weeks:z.number().int().min(1)}),
-  z.object({type:z.literal('lesson'),id:z.string().uuid().optional(),course_id:z.string().uuid(),title:z.string().min(2),title_mr:z.string(),position:z.number().int().min(0),duration_minutes:z.number().int().min(1),video_url:media,audio_url:z.string().url().refine(s=>new URL(s).protocol==='https:'&&new URL(s).hostname==='barakshar-cdn.b-cdn.net','Use your Bunny CDN audio URL').or(z.literal('')),available_from:z.string().nullable(),notes_path:z.string().url().refine(s=>new URL(s).protocol==='https:'&&new URL(s).hostname==='barakshar-cdn.b-cdn.net'&&new URL(s).pathname.toLowerCase().endsWith('.pdf'),'Use your Bunny CDN PDF URL').nullable()}),
+ lessonSchema,
  z.object({type:z.literal('session'),id:z.string().uuid().optional(),course_id:z.string().uuid(),title:z.string().min(2),session_type:z.string(),starts_at:z.string(),duration_minutes:z.number().int().min(1),seats_total:z.number().int().min(1),seats_booked:z.number().int().min(0),location:z.string().min(2)}),
  z.object({type:z.literal('announcement'),title:z.string().min(2),title_mr:z.string(),body:z.string().min(5),pinned:z.boolean()}),
  z.object({type:z.literal('blog'),title:z.string().min(2),slug:z.string().regex(/^[a-z0-9-]+$/),excerpt:z.string().min(5),body:z.string().min(5),category:z.string().min(2)}),
@@ -89,7 +89,7 @@ export const saveAdmin=createServerFn({method:'POST'}).middleware([requireSupaba
  let error;
  switch(data.type){
  case 'course':{const {type,id,...p}=data;({error}=await db.from('courses').upsert({...p,...(id?{id}:{})}));break;}
- case 'lesson':{const {type,id,...p}=data;({error}=await db.from('lessons').upsert({...p,...(id?{id}:{}),video_url:p.video_url||null,audio_url:p.audio_url||null}));break;}
+ case 'lesson':{const {type,id,...p}=data;({error}=await db.from('lessons').upsert({...p,...(id?{id}:{}),video_url:null,audio_url:p.audio_url||null}));break;}
  case 'session':{const {type,id,...p}=data;if(p.seats_booked>p.seats_total)throw new Error('Booked seats exceed capacity');({error}=await db.from('course_sessions').upsert({...p,...(id?{id}:{})}));break;}
  case 'announcement':{const {type,...p}=data;({error}=await db.from('announcements').insert(p));break;}
  case 'blog':{const {type,...p}=data;({error}=await db.from('blog_posts').insert(p));break;}
