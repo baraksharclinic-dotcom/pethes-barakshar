@@ -1,5 +1,5 @@
 # Academy website
-- [ ] Fix optional Bunny audio/PDF lesson validation and remove video editing/playback; verify regression tests.
+- [x] Fix optional Bunny audio/PDF lesson validation and remove video editing/playback; 15 regression tests passed and build OK; signed-in saving remains unverified with external unmanaged authentication.
 - [x] Repair Foundation playback failure — signed Bunny links pass HTTP 206; real recording plays in the player, pauses, changes speed and saves position; 7 tests passed.
 - [x] Diagnose Google rejection: hosted broker returns provider-not-supported; use configured external Supabase Google provider and recover valid sessions from consumed email links (9 tests passed).
 - [ ] Verify real Google account completion after republishing — Google credentials/consent must be accepted by Google; no authenticated test session is available.
