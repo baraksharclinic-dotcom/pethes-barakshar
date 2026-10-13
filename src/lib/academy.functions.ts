@@ -2,6 +2,8 @@ import { createServerFn } from '@tanstack/react-start';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { registrationSchema } from './registration-schema';
+import { signBunnyUrl } from './bunny-signing';
+import { setResponseHeader } from '@tanstack/react-start/server';
 import type { Database } from '@/integrations/supabase/types';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 
@@ -33,8 +35,20 @@ export const getLearning=createServerFn({method:'GET'}).middleware([requireSupab
   const access=await db.rpc('has_course_access',{_user_id:context.userId,_course_id:data.courseId});
   if(access.error || !access.data)throw new Error('Your course access is inactive or has expired.');
  const lessons=await db.from('lessons').select('*').eq('course_id',data.courseId).order('position');if(lessons.error)throw new Error('Unable to load lessons');
- // Do not return recordings or notes before scheduled release.
- return (lessons.data??[]).map(l=>l.available_from && new Date(l.available_from)>new Date()?{...l,video_url:null,audio_url:null,notes_path:null}:l);
+ // Sign only after access checks; Bunny delivers the media directly.
+ setResponseHeader('Cache-Control','private, no-store');
+ const signingKey=process.env['BUNNY_TOKEN_AUTH_KEY'];
+ const expires=Math.floor(Date.now()/1000)+6*60*60;
+ const sign=async(source:string|null)=>{
+   if(!source || new URL(source).hostname!=='barakshar-cdn.b-cdn.net')return source;
+   if(!signingKey)throw new Error('Course media access is not configured. Please contact the academy.');
+   return signBunnyUrl(source,signingKey,expires);
+ };
+ return Promise.all((lessons.data??[]).map(async l=>{
+   if(l.available_from && new Date(l.available_from)>new Date())return {...l,video_url:null,audio_url:null,notes_path:null};
+   const [audio_url,notes_path]=await Promise.all([sign(l.audio_url),sign(l.notes_path)]);
+   return {...l,audio_url,notes_path};
+ }));
 });
 export const completeLesson=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({lessonId:z.string().uuid()})).handler(async({data,context})=>{
  const lesson=await context.supabase.from('lessons').select('id, available_from').eq('id',data.lessonId).maybeSingle();if(!lesson.data|| (lesson.data.available_from && new Date(lesson.data.available_from)>new Date()))throw new Error('Lesson unavailable');

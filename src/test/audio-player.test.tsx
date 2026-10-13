@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { AudioPlayer, audioTime } from '@/components/academy/AudioPlayer';
 
@@ -22,5 +22,22 @@ describe('Foundation audio player', () => {
     audio.currentTime=45;
     fireEvent.pause(audio);
     expect(save).toHaveBeenCalledWith(45,120);
+  });
+  it('stops showing loading on failure and refreshes the recording on retry', async () => {
+    const refresh = vi.fn().mockResolvedValue('https://barakshar-cdn.b-cdn.net/Prasthavna.mp3?token=test-fixture');
+    const {container} = render(<AudioPlayer src="https://barakshar-cdn.b-cdn.net/Prasthavna.mp3" title="Retry lesson" onSave={vi.fn()} onComplete={vi.fn()} onRefreshSource={refresh}/>);
+    const audio = container.querySelector('audio');
+    if (!audio) throw new Error('Audio missing');
+    const load = vi.spyOn(audio, 'load').mockImplementation(() => {});
+    fireEvent.error(audio);
+    expect(screen.queryByText('Loading recording…')).toBeNull();
+    expect(screen.getByRole('button', {name:'Play recording'})).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', {name:'Retry recording'}));
+    await waitFor(() => expect(load).toHaveBeenCalled());
+    expect(refresh).toHaveBeenCalledOnce();
+    expect(audio.src).toContain('token=test-fixture');
+    Object.defineProperty(audio,'duration',{value:120,configurable:true});
+    fireEvent.loadedMetadata(audio);
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });
