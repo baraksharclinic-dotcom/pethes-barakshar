@@ -1,5 +1,5 @@
 # Academy website
-- [ ] Repair Foundation playback failure — confirmed Bunny HTTP 403; obtain signing credentials, preserve direct delivery and verify playback.
+- [x] Repair Foundation playback failure — signed Bunny links pass HTTP 206; real recording plays in the player, pauses, changes speed and saves position; 7 tests passed.
 - [x] Diagnose Google rejection: hosted broker returns provider-not-supported; use configured external Supabase Google provider and recover valid sessions from consumed email links (9 tests passed).
 - [ ] Verify real Google account completion after republishing — Google credentials/consent must be accepted by Google; no authenticated test session is available.
 - [x] Repair explicit email confirmation session handling and auth-state races; add Google sign-in with shared course-access rules (19 regression tests passed; public callback recovery and login button checked).
@@ -7,8 +7,8 @@
 - [x] Add tested public confirmation return page, canonical email destinations and resend confirmation; retain Foundation and paid-course access rules.
 - [ ] Complete live confirmation redirect — external Supabase falls back to localhost:3000 and ignores published callback; owner must update Authentication URL Configuration and publish the new confirmation page.
 - [x] Attach supplied Prasthavna audio to Foundation Recordings, add tested playback/progress controls and a Files section for future PDFs.
-- [ ] Verify real Prasthavna playback — Bunny returns 403; needs corrected Bunny access settings or token-signing credentials.
-- [ ] Enable token-protected Bunny delivery — needs Bunny signing key (secure form was declined); direct delivery and embedded controls are implemented.
+- [x] Verify real Prasthavna playback — browser loaded the 99-minute recording and confirmed playback advances; authenticated course-page verification remains blocked by external unmanaged authentication.
+- [x] Enable token-protected Bunny delivery — signing key saved securely; authorized lesson responses sign audio and PDFs, with fresh access checks on audio retry; publish to activate on the live site.
 - [x] Temporarily open Foundation Course in Biochemic Medicine to all signed-in students without changing payment approval records.
 - [x] Add selected-course registration form, validated private details and admin review before approval; public form flow and validation tests passed.
 - [x] Public pages with Marathi navigation, course titles and FAQs; English educational article content.
