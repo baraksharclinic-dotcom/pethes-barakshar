@@ -48,6 +48,7 @@ export type Database = {
           category: string
           excerpt: string
           id: string
+          image_url: string | null
           published_at: string
           read_minutes: number
           slug: string
@@ -59,6 +60,7 @@ export type Database = {
           category?: string
           excerpt: string
           id?: string
+          image_url?: string | null
           published_at?: string
           read_minutes?: number
           slug: string
@@ -70,6 +72,7 @@ export type Database = {
           category?: string
           excerpt?: string
           id?: string
+          image_url?: string | null
           published_at?: string
           read_minutes?: number
           slug?: string
@@ -468,6 +471,66 @@ export type Database = {
           id?: string
           phone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      resource_links: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          position: number
+          subtitle: string
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string
+          id?: string
+          position?: number
+          subtitle?: string
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          position?: number
+          subtitle?: string
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      resource_settings: {
+        Row: {
+          channel_url: string | null
+          id: number
+          updated_at: string
+          video_duration: string | null
+          video_summary: string
+          video_title: string
+          video_url: string
+        }
+        Insert: {
+          channel_url?: string | null
+          id?: number
+          updated_at?: string
+          video_duration?: string | null
+          video_summary: string
+          video_title: string
+          video_url: string
+        }
+        Update: {
+          channel_url?: string | null
+          id?: number
+          updated_at?: string
+          video_duration?: string | null
+          video_summary?: string
+          video_title?: string
+          video_url?: string
         }
         Relationships: []
       }
