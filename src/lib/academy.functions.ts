@@ -12,10 +12,10 @@ export const getCatalog = createServerFn({method:'GET'}).handler(async () => {
  const url=process.env['SUPABASE_URL']; const key=process.env['SUPABASE_PUBLISHABLE_KEY'];
  if(!url || !key) throw new Error('Course service is unavailable.');
  const db=createClient<Database>(url,key,{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:(input,init)=>{const h=new Headers(init?.headers);if(key.startsWith('sb_') && h.get('Authorization')===`Bearer ${key}`)h.delete('Authorization'); h.set('apikey',key);return fetch(input,{...init,headers:h});}}});
- const [courses,sessions,posts,faqs,articles,announcements]=await Promise.all([
- db.from('courses').select('*').eq('published',true).order('created_at'),db.from('course_sessions').select('*, courses(title,slug)').order('starts_at'),db.from('blog_posts').select('*').order('published_at',{ascending:false}),db.from('faqs').select('*').order('position'),db.from('kb_articles').select('*'),db.from('announcements').select('*').order('created_at',{ascending:false})]);
- for(const r of [courses,sessions,posts,faqs,articles,announcements]) if(r.error)throw new Error('Unable to load academy content. Please try again.');
- return {courses:courses.data??[],sessions:sessions.data??[],posts:posts.data??[],faqs:faqs.data??[],articles:articles.data??[],announcements:announcements.data??[]};
+ const [courses,sessions,posts,faqs,articles,announcements,links,settings]=await Promise.all([
+ db.from('courses').select('*').eq('published',true).order('created_at'),db.from('course_sessions').select('*, courses(title,slug)').order('starts_at'),db.from('blog_posts').select('*').order('published_at',{ascending:false}),db.from('faqs').select('*').order('position'),db.from('kb_articles').select('*'),db.from('announcements').select('*').order('created_at',{ascending:false}),db.from('resource_links').select('*').order('position'),db.from('resource_settings').select('*').eq('id',1).maybeSingle()]);
+ for(const r of [courses,sessions,posts,faqs,articles,announcements,links,settings]) if(r.error)throw new Error('Unable to load academy content. Please try again.');
+ return {courses:courses.data??[],sessions:sessions.data??[],posts:posts.data??[],faqs:faqs.data??[],articles:articles.data??[],announcements:announcements.data??[],links:links.data??[],featured:settings.data??null};
 });
 export const getOutline=createServerFn({method:'GET'}).inputValidator(z.object({id:z.string().uuid()})).handler(async({data})=>{
  const url=process.env['SUPABASE_URL'];const key=process.env['SUPABASE_PUBLISHABLE_KEY']; if(!url||!key)throw new Error('Service unavailable');
