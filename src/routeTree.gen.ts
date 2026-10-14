@@ -21,6 +21,7 @@ import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -90,6 +91,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/resources': typeof ResourcesRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/resources': typeof ResourcesRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/resources': typeof ResourcesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/knowledge'
     | '/reset-password'
+    | '/resources'
     | '/admin'
     | '/dashboard'
     | '/blog/$slug'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/reset-password'
+    | '/resources'
     | '/admin'
     | '/dashboard'
     | '/blog/$slug'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/knowledge'
     | '/reset-password'
+    | '/resources'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   KnowledgeRoute: typeof KnowledgeRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ResourcesRoute: typeof ResourcesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -368,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -503,6 +523,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   KnowledgeRoute: KnowledgeRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
+  ResourcesRoute: ResourcesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
