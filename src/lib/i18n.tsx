@@ -7,6 +7,7 @@ const dict = {
   courses: { en: "Courses", mr: "अभ्यासक्रम" },
   calendar: { en: "Calendar", mr: "वेळापत्रक" },
   knowledge: { en: "Knowledge Base", mr: "ज्ञानकोश" },
+  resources: { en: "Resources", mr: "संसाधने" },
   blog: { en: "Blog", mr: "ब्लॉग" },
   faq: { en: "FAQs", mr: "प्रश्नोत्तरे" },
   announcements: { en: "Announcements", mr: "घोषणा" },

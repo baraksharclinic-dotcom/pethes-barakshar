@@ -12,10 +12,10 @@ export const getCatalog = createServerFn({method:'GET'}).handler(async () => {
  const url=process.env['SUPABASE_URL']; const key=process.env['SUPABASE_PUBLISHABLE_KEY'];
  if(!url || !key) throw new Error('Course service is unavailable.');
  const db=createClient<Database>(url,key,{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:(input,init)=>{const h=new Headers(init?.headers);if(key.startsWith('sb_') && h.get('Authorization')===`Bearer ${key}`)h.delete('Authorization'); h.set('apikey',key);return fetch(input,{...init,headers:h});}}});
- const [courses,sessions,posts,faqs,articles,announcements]=await Promise.all([
- db.from('courses').select('*').eq('published',true).order('created_at'),db.from('course_sessions').select('*, courses(title,slug)').order('starts_at'),db.from('blog_posts').select('*').order('published_at',{ascending:false}),db.from('faqs').select('*').order('position'),db.from('kb_articles').select('*'),db.from('announcements').select('*').order('created_at',{ascending:false})]);
- for(const r of [courses,sessions,posts,faqs,articles,announcements]) if(r.error)throw new Error('Unable to load academy content. Please try again.');
- return {courses:courses.data??[],sessions:sessions.data??[],posts:posts.data??[],faqs:faqs.data??[],articles:articles.data??[],announcements:announcements.data??[]};
+ const [courses,sessions,posts,faqs,articles,announcements,links,settings]=await Promise.all([
+ db.from('courses').select('*').eq('published',true).order('created_at'),db.from('course_sessions').select('*, courses(title,slug)').order('starts_at'),db.from('blog_posts').select('*').order('published_at',{ascending:false}),db.from('faqs').select('*').order('position'),db.from('kb_articles').select('*'),db.from('announcements').select('*').order('created_at',{ascending:false}),db.from('resource_links').select('*').order('position'),db.from('resource_settings').select('*').eq('id',1).maybeSingle()]);
+ for(const r of [courses,sessions,posts,faqs,articles,announcements,links,settings]) if(r.error)throw new Error('Unable to load academy content. Please try again.');
+ return {courses:courses.data??[],sessions:sessions.data??[],posts:posts.data??[],faqs:faqs.data??[],articles:articles.data??[],announcements:announcements.data??[],links:links.data??[],featured:settings.data??null};
 });
 export const getOutline=createServerFn({method:'GET'}).inputValidator(z.object({id:z.string().uuid()})).handler(async({data})=>{
  const url=process.env['SUPABASE_URL'];const key=process.env['SUPABASE_PUBLISHABLE_KEY']; if(!url||!key)throw new Error('Service unavailable');
@@ -81,7 +81,10 @@ export const saveAdmin=createServerFn({method:'POST'}).middleware([requireSupaba
  lessonSchema,
  z.object({type:z.literal('session'),id:z.string().uuid().optional(),course_id:z.string().uuid(),title:z.string().min(2),session_type:z.string(),starts_at:z.string(),duration_minutes:z.number().int().min(1),seats_total:z.number().int().min(1),seats_booked:z.number().int().min(0),location:z.string().min(2)}),
  z.object({type:z.literal('announcement'),title:z.string().min(2),title_mr:z.string(),body:z.string().min(5),pinned:z.boolean()}),
- z.object({type:z.literal('blog'),title:z.string().min(2),slug:z.string().regex(/^[a-z0-9-]+$/),excerpt:z.string().min(5),body:z.string().min(5),category:z.string().min(2)}),
+ z.object({type:z.literal('blog'),id:z.string().uuid().optional(),title:z.string().min(2),slug:z.string().regex(/^[a-z0-9-]+$/),excerpt:z.string().min(5),body:z.string().min(5),category:z.string().min(2),image_url:z.string().trim().url().startsWith('https://').nullable().or(z.literal('').transform(()=>null))}),
+ z.object({type:z.literal('video'),video_title:z.string().trim().min(2).max(200),video_summary:z.string().trim().min(5).max(1000),video_url:z.string().trim().url().refine(u=>/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(u),'Use a YouTube link'),video_duration:z.string().trim().max(20),channel_url:z.string().trim().max(500)}),
+ z.object({type:z.literal('link'),id:z.string().uuid().optional(),title:z.string().trim().min(2).max(120),subtitle:z.string().trim().max(200),url:z.string().trim().refine(u=>u.startsWith('/')||u.startsWith('https://'),'Use https:// or a site path like /faq'),icon:z.enum(['youtube','file','book','link']),position:z.number().int().min(0)}),
+ z.object({type:z.literal('link_delete'),id:z.string().uuid()}),
  z.object({type:z.literal('faq'),question:z.string().min(2),question_mr:z.string(),answer:z.string().min(5),category:z.string()}),
  z.object({type:z.literal('knowledge'),title:z.string().min(2),slug:z.string().regex(/^[a-z0-9-]+$/),summary:z.string().min(5),body:z.string().min(5),category:z.string()})
 ])).handler(async({data,context})=>{
@@ -92,7 +95,10 @@ export const saveAdmin=createServerFn({method:'POST'}).middleware([requireSupaba
  case 'lesson':{const {type,id,...p}=data;({error}=await db.from('lessons').upsert({...p,...(id?{id}:{}),video_url:null,audio_url:p.audio_url||null}));break;}
  case 'session':{const {type,id,...p}=data;if(p.seats_booked>p.seats_total)throw new Error('Booked seats exceed capacity');({error}=await db.from('course_sessions').upsert({...p,...(id?{id}:{})}));break;}
  case 'announcement':{const {type,...p}=data;({error}=await db.from('announcements').insert(p));break;}
- case 'blog':{const {type,...p}=data;({error}=await db.from('blog_posts').insert(p));break;}
+ case 'blog':{const {type,id,...p}=data;({error}=await db.from('blog_posts').upsert({...p,...(id?{id}:{})}));break;}
+ case 'video':{const {type,...p}=data;({error}=await db.from('resource_settings').upsert({id:1,...p,updated_at:new Date().toISOString()}));break;}
+ case 'link':{const {type,id,...p}=data;({error}=await db.from('resource_links').upsert({...p,...(id?{id}:{})}));break;}
+ case 'link_delete':{({error}=await db.from('resource_links').delete().eq('id',data.id));break;}
  case 'faq':{const {type,...p}=data;({error}=await db.from('faqs').insert(p));break;}
  case 'knowledge':{const {type,...p}=data;({error}=await db.from('kb_articles').insert(p));break;}
  }

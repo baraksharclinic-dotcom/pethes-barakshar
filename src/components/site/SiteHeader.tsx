@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 const nav = [
   { to: "/courses", k: "courses" },
   { to: "/calendar", k: "calendar" },
+  { to: "/resources", k: "resources" },
   { to: "/knowledge", k: "knowledge" },
   { to: "/blog", k: "blog" },
   { to: "/faq", k: "faq" },
