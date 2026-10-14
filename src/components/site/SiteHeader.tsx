@@ -32,6 +32,9 @@ export function SiteHeader() {
     navigate({ to: "/auth", replace: true });
   };
 
+  const toggleLang = () => setLang(lang === "en" ? "mr" : "en");
+  const langLabel = lang === "en" ? "मराठी" : "English";
+
   const links = (
     <>
       {nav.map((n) => (
@@ -50,37 +53,56 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
-      <div className="container-page flex h-18 items-center justify-between gap-4 py-3">
-        <Link to="/" className="flex items-center gap-2.5">
-          <span className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground">
+      <div className="mx-auto flex h-18 w-full max-w-[76rem] items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-5">
+        <Link to="/" className="flex min-w-0 items-center gap-2.5">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground sm:size-10">
             <Leaf className="size-5" />
           </span>
-          <span className="leading-tight">
-            <span className="block font-display text-lg font-semibold">Pethe's Barakshar</span>
-            <span className="block text-xs font-semibold tracking-widest text-muted-foreground uppercase">Bio-Chemic Academy</span>
+          <span className="min-w-0 leading-tight">
+            <span className="block truncate font-display text-[0.95rem] font-semibold sm:text-lg">Pethe's Barakshar</span>
+            <span className="hidden text-xs font-semibold tracking-widest text-muted-foreground uppercase sm:block">Bio-Chemic Academy</span>
           </span>
         </Link>
         <nav className="hidden items-center gap-0.5 xl:flex">{links}</nav>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setLang(lang === "en" ? "mr" : "en")} aria-label="Switch language">
-            {lang === "en" ? "मराठी" : "English"}
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <Button variant="outline" size="sm" className="hidden h-10 sm:inline-flex" onClick={toggleLang} aria-label="Switch language">
+            {langLabel}
           </Button>
           {session ? (
-            <div className="hidden items-center gap-2 sm:flex">
+            <>
               {isAdmin && (
-                <Button asChild variant="ghost" size="sm"><Link to="/admin">{t("admin")}</Link></Button>
+                <Button asChild variant="ghost" size="sm" className="hidden h-10 md:inline-flex">
+                  <Link to="/admin">{t("admin")}</Link>
+                </Button>
               )}
-              <Button asChild size="sm"><Link to="/dashboard">{t("dashboard")}</Link></Button>
-              <Button variant="ghost" size="sm" onClick={signOut}>{t("signOut")}</Button>
-            </div>
+              <Button asChild size="sm" className="h-10">
+                <Link to="/dashboard">
+                  <span className="sm:hidden">{t("dashboardShort")}</span>
+                  <span className="hidden sm:inline">{t("dashboard")}</span>
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="hidden h-10 md:inline-flex" onClick={signOut}>
+                {t("signOut")}
+              </Button>
+            </>
           ) : (
-            <Button asChild size="sm" className="hidden sm:inline-flex"><Link to="/auth">{t("login")}</Link></Button>
+            <Button asChild size="sm" className="h-10 px-3.5 sm:h-8">
+              <Link to="/auth">
+                <span className="sm:hidden">{t("loginShort")}</span>
+                <span className="hidden sm:inline">{t("login")}</span>
+              </Link>
+            </Button>
           )}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="xl:hidden" aria-label="Menu"><Menu /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10 xl:hidden" aria-label="Menu">
+                <Menu />
+              </Button>
             </SheetTrigger>
             <SheetContent className="flex flex-col gap-1 pt-12">
+              <Button variant="outline" className="mb-2 w-full justify-start" onClick={toggleLang} aria-label="Switch language">
+                {langLabel}
+              </Button>
               {links}
               <div className="mt-4 flex flex-col gap-2 border-t pt-4">
                 {session ? (

@@ -13,6 +13,8 @@ const dict = {
   contact: { en: "Contact", mr: "संपर्क" },
   login: { en: "Student Login", mr: "विद्यार्थी लॉगिन" },
   dashboard: { en: "My Dashboard", mr: "माझे डॅशबोर्ड" },
+  loginShort: { en: "Login", mr: "लॉगिन" },
+  dashboardShort: { en: "Dashboard", mr: "डॅशबोर्ड" },
   admin: { en: "Admin", mr: "प्रशासन" },
   signOut: { en: "Sign out", mr: "बाहेर पडा" },
   heroEyebrow: { en: "Since generations · Pune", mr: "पिढ्यानपिढ्या · पुणे" },
