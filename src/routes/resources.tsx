@@ -20,7 +20,7 @@ export const Route = createFileRoute('/resources')({
 });
 
 const youtubeId = (url: string) => {
-  try { const u = new URL(url); if (u.hostname.includes('youtu.be')) return u.pathname.slice(1); return u.searchParams.get('v') ?? u.pathname.split('/').pop() ?? null; } catch { return null; }
+  try { const u = new URL(url); if (u.hostname.includes('youtu.be')) return u.pathname.slice(1); const m = u.pathname.match(/^\/(embed|shorts|live)\/([\w-]{6,})/); return u.searchParams.get('v') ?? m?.[2] ?? null; } catch { return null; }
 };
 const linkIcons = { youtube: Youtube, file: FileText, book: BookOpen, link: Link2 } as const;
 const fmt = (s: string) => new Date(s).toLocaleDateString('en-IN', { dateStyle: 'medium' });
@@ -88,7 +88,7 @@ function Resources() {
           </div>
           <div className="relative aspect-video overflow-hidden rounded-xl bg-ink shadow-xl">
             {playing && vid ? <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&rel=0`} title={v.video_title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen /> :
-              <button type="button" onClick={() => setPlaying(true)} className="group absolute inset-0" aria-label={`Play ${v.video_title}`}>
+              <button type="button" onClick={() => vid ? setPlaying(true) : window.open(v.video_url, '_blank', 'noopener')} className="group absolute inset-0" aria-label={`Play ${v.video_title}`}>
                 <img src={vid ? `https://i.ytimg.com/vi/${vid}/hqdefault.jpg` : videoThumb} onError={e => { e.currentTarget.src = videoThumb; }} alt="" loading="lazy" className="h-full w-full object-cover opacity-90" />
                 <span className="absolute inset-0 bg-gradient-to-t from-ink/80 to-transparent" />
                 <span className="absolute left-1/2 top-1/2 grid size-18 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-ink-foreground/80 bg-ink/30 text-ink-foreground transition group-hover:scale-105"><Play className="size-8 fill-current" /></span>
