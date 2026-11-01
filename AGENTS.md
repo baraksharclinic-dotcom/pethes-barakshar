@@ -22,3 +22,4 @@
 - Persist listening positions separately from lesson completion and save periodically and on pause, because students must resume recordings across devices without marking partially heard lessons complete.
 
 - Store registration details on each enrollment and share a validation schema between form and server, because administrators review a course-specific application rather than mutable profile details.
+- Keep Resources page content (featured video, quick links, blog cover images) in admin-editable tables loaded through the public catalog query, because the academy owner manages it without code changes.
